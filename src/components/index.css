@@ -1,0 +1,14 @@
+body, html {
+  margin: 0;
+  padding: 0;
+}
+
+.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}

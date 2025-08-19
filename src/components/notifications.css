@@ -1,0 +1,55 @@
+.notifications-container {
+  padding: 20px;
+  max-width: 480px;
+  margin: auto;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+.title {
+  margin-bottom: 18px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #111;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+.notification-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.25s ease-in-out;
+}
+
+.notification-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.content {
+  flex-grow: 1;
+}
+
+.text {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+}
+
+.text strong {
+  color: #000;
+}
+
+.time {
+  font-size: 0.85rem;
+  color: gray;
+}
+
+.icon {
+  margin-left: 12px;
+}
