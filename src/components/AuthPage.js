@@ -4,19 +4,22 @@ import "./AuthPage.css";
 import logo from "../assets/logo.png";
 import lunivaLogo from "../assets/luniva.png";
 
-const API_URL = process.env.REACT_APP_API_URL || "https://luniva-backend.onrender.com";
-
 export default function AuthPage({ onAuth }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("testuser@gmail.com"); // default
   const [password, setPassword] = useState("password"); // default
   const [fullName, setFullName] = useState("Test User");
 
+  // ✅ Use environment variable for backend URL
+  const API_BASE =
+    process.env.REACT_APP_BACKEND_URL ||
+    "https://luniva-backend.onrender.com";
+
   // ✅ Auto-register default user if not exists
   useEffect(() => {
     const registerDefaultUser = async () => {
       try {
-        await axios.post(`${API_URL}/api/auth/register`, {
+        await axios.post(`${API_BASE}/api/auth/register`, {
           fullName: "Test User",
           email: "testuser@gmail.com",
           password: "password",
@@ -31,27 +34,30 @@ export default function AuthPage({ onAuth }) {
       }
     };
     registerDefaultUser();
-  }, []);
+  }, [API_BASE]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const url = isLogin
-        ? `${API_URL}/api/auth/login`
-        : `${API_URL}/api/auth/register`;
+        ? `${API_BASE}/api/auth/login`
+        : `${API_BASE}/api/auth/register`;
 
       const payload = isLogin
         ? { email, password }
         : { fullName, email, password };
 
-      const res = await axios.post(url, payload);
+      const res = await axios.post(url, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
 
       // ✅ If backend doesn’t send token, create a mock one
-      const token = res.data.token || "mock-demo-token";
+      const token = res.data?.token || "mock-demo-token";
 
       localStorage.setItem("token", token);
-      onAuth(res.data.user);
+      onAuth(res.data.user || { fullName, email });
     } catch (err) {
+      console.error("Auth error:", err);
       alert("❌ " + (err.response?.data?.message || "Something went wrong"));
     }
   };
