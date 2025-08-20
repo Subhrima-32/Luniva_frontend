@@ -6,9 +6,8 @@ export default function AuthPage({ onLogin }) {
   const [email, setEmail] = useState("testuser@gmail.com"); // default email
   const [password, setPassword] = useState("password"); // default password
 
-  // Use env variable if available, else fallback to localhost
-  const API_URL =
-    process.env.REACT_APP_API_URL || "http://localhost:5000";
+  // 🔗 Always point frontend to your Render backend
+  const API_URL = "https://luniva-backend.onrender.com";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,7 +71,10 @@ export default function AuthPage({ onLogin }) {
         />
         <button type="submit">{isRegister ? "Register" : "Login"}</button>
       </form>
-      <p onClick={() => setIsRegister(!isRegister)} style={{ cursor: "pointer", color: "blue" }}>
+      <p
+        onClick={() => setIsRegister(!isRegister)}
+        style={{ cursor: "pointer", color: "blue" }}
+      >
         {isRegister
           ? "Already have an account? Login"
           : "Don’t have an account? Register"}
