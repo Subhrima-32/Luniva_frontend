@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AuthPage.css";
+import logo from '../assets/logo.png';
+import lunivaLogo from '../assets/luniva.png';
 
 export default function AuthPage({ onAuth }) {
   const [isLogin, setIsLogin] = useState(true);
