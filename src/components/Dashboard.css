@@ -83,4 +83,6 @@ h2 {
   border: 1px solid #ddd;
   border-radius: 5px;
   margin-bottom: 6px;
+  color: purple;          /* ✅ Makes activity text purple */
+  font-weight: 500;       /* Optional: makes it stand out */
 }
