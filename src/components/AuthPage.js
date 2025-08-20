@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./AuthPage.css";
-import logo from '../assets/logo.png';
-import lunivaLogo from '../assets/luniva.png';
+import logo from "../assets/logo.png";
+import lunivaLogo from "../assets/luniva.png";
 
 export default function AuthPage({ onAuth }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,11 +14,14 @@ export default function AuthPage({ onAuth }) {
   useEffect(() => {
     const registerDefaultUser = async () => {
       try {
-        await axios.post("https://luniva-backend.onrender.com/api/auth/register", {
-          fullName: "Test User",
-          email: "testuser@gmail.com",
-          password: "password",
-        });
+        await axios.post(
+          "https://luniva-backend.onrender.com/api/auth/register",
+          {
+            fullName: "Test User",
+            email: "testuser@gmail.com",
+            password: "password",
+          }
+        );
         console.log("✅ Default user ensured in database");
       } catch (err) {
         if (err.response?.status === 400) {
@@ -43,7 +46,11 @@ export default function AuthPage({ onAuth }) {
         : { fullName, email, password };
 
       const res = await axios.post(url, payload);
-      localStorage.setItem("token", res.data.token);
+
+      // ✅ If backend doesn’t send token, create a mock one
+      const token = res.data.token || "mock-demo-token";
+
+      localStorage.setItem("token", token);
       onAuth(res.data.user);
     } catch (err) {
       alert("❌ " + (err.response?.data?.message || "Something went wrong"));
@@ -53,8 +60,8 @@ export default function AuthPage({ onAuth }) {
   return (
     <div className="auth-container">
       <div className="auth-header">
-        <img src="/logo.png" alt="Logo" className="auth-logo" />
-        <img src="/luniva.png" alt="Luniva" className="auth-luniva" />
+        <img src={logo} alt="Logo" className="auth-logo" />
+        <img src={lunivaLogo} alt="Luniva" className="auth-luniva" />
       </div>
 
       <div className="auth-box">
