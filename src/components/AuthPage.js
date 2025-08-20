@@ -10,10 +10,10 @@ export default function AuthPage({ onAuth }) {
   const [password, setPassword] = useState("password"); // default
   const [fullName, setFullName] = useState("Test User");
 
-  // ✅ Use environment variable for backend URL
+  // ✅ Use Railway backend by default, but allow override via env
   const API_BASE =
     process.env.REACT_APP_BACKEND_URL ||
-    "https://luniva-backend.onrender.com";
+    "https://lunivabackend-production.up.railway.app";
 
   // ✅ Auto-register default user if not exists
   useEffect(() => {
