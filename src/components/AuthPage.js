@@ -1,84 +1,94 @@
 import React, { useState } from "react";
+import "./AuthPage.css";
 
-export default function AuthPage({ onLogin }) {
-  const [isRegister, setIsRegister] = useState(false);
-  const [fullName, setFullName] = useState("Test User");
+export default function AuthPage({ onAuth }) {
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("testuser@gmail.com"); // default email
-  const [password, setPassword] = useState("password"); // default password
-
-  // 🔗 Always point frontend to your Render backend
-  const API_URL = "https://luniva-backend.onrender.com";
+  const [password, setPassword] = useState("password");     // default password
+  const [fullName, setFullName] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const endpoint = isRegister
-      ? `${API_URL}/api/auth/register`
-      : `${API_URL}/api/auth/login`;
+    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+    const payload = isLogin
+      ? { email, password }
+      : { fullName, email, password };
 
     try {
-      const response = await fetch(endpoint, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          isRegister
-            ? { fullName, email, password }
-            : { email, password }
-        ),
+        body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok) {
-        alert(isRegister ? "✅ Registration successful!" : "✅ Login successful!");
+      if (res.ok) {
         localStorage.setItem("token", data.token);
-        if (onLogin) onLogin(data);
+        onAuth(data.user);
       } else {
-        alert(`❌ ${data.message || "Something went wrong"}`);
+        alert(data.message || "Something went wrong");
       }
     } catch (err) {
-      console.error("Auth Error:", err);
-      alert("⚠️ Server error. Please try again later.");
+      console.error(err);
+      alert("Server error, try again later");
     }
   };
 
   return (
     <div className="auth-container">
-      <h2>{isRegister ? "Register" : "Login"}</h2>
-      <form onSubmit={handleSubmit}>
-        {isRegister && (
+      {/* Logo/Header */}
+      <div className="auth-header">
+        <img
+          src="/logo192.png"
+          alt="Logo"
+          className="auth-logo"
+        />
+        <h1 className="auth-luniva">Luniva</h1>
+      </div>
+
+      {/* Auth Box */}
+      <div className="auth-box">
+        <h2>{isLogin ? "Login" : "Register"}</h2>
+        <form onSubmit={handleSubmit}>
+          {!isLogin && (
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+          )}
           <input
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-        )}
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">{isRegister ? "Register" : "Login"}</button>
-      </form>
-      <p
-        onClick={() => setIsRegister(!isRegister)}
-        style={{ cursor: "pointer", color: "blue" }}
-      >
-        {isRegister
-          ? "Already have an account? Login"
-          : "Don’t have an account? Register"}
-      </p>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">
+            {isLogin ? "Login" : "Register"}
+          </button>
+        </form>
+
+        <div
+          className="toggle-text"
+          onClick={() => setIsLogin(!isLogin)}
+        >
+          {isLogin
+            ? "Don't have an account? Register"
+            : "Already have an account? Login"}
+        </div>
+      </div>
     </div>
   );
 }
