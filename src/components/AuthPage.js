@@ -1,115 +1,82 @@
-import React, { useState } from 'react';
-import './AuthPage.css';
-import logo from '../assets/logo.png';
-import lunivaLogo from '../assets/luniva.png';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
 
-const AuthPage = ({ setUser }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+export default function AuthPage({ onLogin }) {
+  const [isRegister, setIsRegister] = useState(false);
+  const [fullName, setFullName] = useState("Test User");
+  const [email, setEmail] = useState("testuser@gmail.com"); // default email
+  const [password, setPassword] = useState("password"); // default password
 
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  // Use env variable if available, else fallback to localhost
+  const API_URL =
+    process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+
+    const endpoint = isRegister
+      ? `${API_URL}/api/auth/register`
+      : `${API_URL}/api/auth/login`;
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          isRegister
+            ? { fullName, email, password }
+            : { email, password }
+        ),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        setError(data.message || 'Something went wrong');
+      if (response.ok) {
+        alert(isRegister ? "✅ Registration successful!" : "✅ Login successful!");
+        localStorage.setItem("token", data.token);
+        if (onLogin) onLogin(data);
       } else {
-        if (isLogin) {
-          // Save token & user info
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          setUser(data.user);
-          navigate('/dashboard');
-        } else {
-          alert('Signup successful! Please login.');
-          setIsLogin(true);
-          setFormData({ fullName: '', email: '', password: '' });
-        }
+        alert(`❌ ${data.message || "Something went wrong"}`);
       }
-    } catch {
-      setError('Server error, please try again later.');
+    } catch (err) {
+      console.error("Auth Error:", err);
+      alert("⚠️ Server error. Please try again later.");
     }
-    setLoading(false);
   };
 
   return (
     <div className="auth-container">
-      <header className="auth-header">
-        <img src={logo} alt="Logo" className="auth-logo" />
-        <img src={lunivaLogo} alt="LUNIVA" className="auth-luniva" />
-      </header>
-
-      <div className="auth-box">
-        <h2>{isLogin ? 'Login to LUNIVA' : 'Signup for LUNIVA'}</h2>
-
-        <form onSubmit={handleSubmit}>
-          {!isLogin && (
-            <input
-              name="fullName"
-              type="text"
-              placeholder="Full Name"
-              value={formData.fullName}
-              onChange={handleChange}
-              required
-            />
-          )}
+      <h2>{isRegister ? "Register" : "Login"}</h2>
+      <form onSubmit={handleSubmit}>
+        {isRegister && (
           <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
+            type="text"
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             required
           />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-
-          <button type="submit" disabled={loading}>
-            {loading ? (isLogin ? 'Logging in...' : 'Signing up...') : (isLogin ? 'Login' : 'Signup')}
-          </button>
-        </form>
-
-        {error && <p style={{ color: 'red', marginTop: 10 }}>{error}</p>}
-
-        <p
-          onClick={() => {
-            setError('');
-            setIsLogin(!isLogin);
-            setFormData({ fullName: '', email: '', password: '' });
-          }}
-          className="toggle-text"
-          style={{ cursor: 'pointer', color: '#FFD700', marginTop: 15 }}
-        >
-          {isLogin ? "Don't have an account? Signup" : "Already have an account? Login"}
-        </p>
-      </div>
+        )}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">{isRegister ? "Register" : "Login"}</button>
+      </form>
+      <p onClick={() => setIsRegister(!isRegister)} style={{ cursor: "pointer", color: "blue" }}>
+        {isRegister
+          ? "Already have an account? Login"
+          : "Don’t have an account? Register"}
+      </p>
     </div>
   );
-};
-
-export default AuthPage;
+}
