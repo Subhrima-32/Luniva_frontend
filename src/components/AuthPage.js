@@ -1,40 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./AuthPage.css";
 
-export default function AuthPage({ onLogin }) {
+export default function AuthPage({ onAuth }) {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("testuser@gmail.com"); // default email
-  const [password, setPassword] = useState("password"); // default password
-  const [fullName, setFullName] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState("testuser@gmail.com"); // default
+  const [password, setPassword] = useState("password"); // default
+  const [fullName, setFullName] = useState("Test User");
 
-  const backendUrl = "https://luniva-backend.onrender.com"; // Render backend URL
+  // ✅ Auto-register default user if not exists
+  useEffect(() => {
+    const registerDefaultUser = async () => {
+      try {
+        await axios.post("https://luniva-backend.onrender.com/api/auth/register", {
+          fullName: "Test User",
+          email: "testuser@gmail.com",
+          password: "password",
+        });
+        console.log("✅ Default user ensured in database");
+      } catch (err) {
+        if (err.response?.status === 400) {
+          console.log("ℹ️ Default user already exists");
+        } else {
+          console.error("Error ensuring default user:", err.message);
+        }
+      }
+    };
+    registerDefaultUser();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
-      const response = await fetch(`${backendUrl}${endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
-          isLogin
-            ? { email, password }
-            : { fullName, email, password }
-        ),
-      });
+      const url = isLogin
+        ? "https://luniva-backend.onrender.com/api/auth/login"
+        : "https://luniva-backend.onrender.com/api/auth/register";
 
-      const data = await response.json();
+      const payload = isLogin
+        ? { email, password }
+        : { fullName, email, password };
 
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
-
-      localStorage.setItem("token", data.token);
-      onLogin(data.user);
+      const res = await axios.post(url, payload);
+      localStorage.setItem("token", res.data.token);
+      onAuth(res.data.user);
     } catch (err) {
-      setError(err.message);
+      alert("❌ " + (err.response?.data?.message || "Something went wrong"));
     }
   };
 
@@ -42,12 +52,11 @@ export default function AuthPage({ onLogin }) {
     <div className="auth-container">
       <div className="auth-header">
         <img src="/logo.png" alt="Logo" className="auth-logo" />
-        <img src="/luniva-text.png" alt="Luniva" className="auth-luniva" />
+        <img src="/luniva.png" alt="Luniva" className="auth-luniva" />
       </div>
 
       <div className="auth-box">
         <h2>{isLogin ? "Login" : "Register"}</h2>
-        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <input
@@ -72,17 +81,12 @@ export default function AuthPage({ onLogin }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit">
-            {isLogin ? "Login" : "Register"}
-          </button>
+          <button type="submit">{isLogin ? "Login" : "Register"}</button>
         </form>
-        <p
-          className="toggle-text"
-          onClick={() => setIsLogin(!isLogin)}
-        >
+        <p onClick={() => setIsLogin(!isLogin)} className="auth-toggle">
           {isLogin
-            ? "Don't have an account? Register here"
-            : "Already have an account? Login here"}
+            ? "Don't have an account? Register"
+            : "Already have an account? Login"}
         </p>
       </div>
     </div>
