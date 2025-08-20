@@ -1,56 +1,53 @@
 import React, { useState } from "react";
-import "./AuthPage.css";
 
-export default function AuthPage({ onAuth }) {
+export default function AuthPage({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("testuser@gmail.com"); // default email
-  const [password, setPassword] = useState("password");     // default password
+  const [password, setPassword] = useState("password"); // default password
   const [fullName, setFullName] = useState("");
+  const [error, setError] = useState("");
+
+  const backendUrl = "https://luniva-backend.onrender.com"; // Render backend URL
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
-    const payload = isLogin
-      ? { email, password }
-      : { fullName, email, password };
-
     try {
-      const res = await fetch(endpoint, {
+      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+      const response = await fetch(`${backendUrl}${endpoint}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(
+          isLogin
+            ? { email, password }
+            : { fullName, email, password }
+        ),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (res.ok) {
-        localStorage.setItem("token", data.token);
-        onAuth(data.user);
-      } else {
-        alert(data.message || "Something went wrong");
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong");
       }
+
+      localStorage.setItem("token", data.token);
+      onLogin(data.user);
     } catch (err) {
-      console.error(err);
-      alert("Server error, try again later");
+      setError(err.message);
     }
   };
 
   return (
     <div className="auth-container">
-      {/* Logo/Header */}
       <div className="auth-header">
-        <img
-          src="/logo192.png"
-          alt="Logo"
-          className="auth-logo"
-        />
-        <h1 className="auth-luniva">Luniva</h1>
+        <img src="/logo.png" alt="Logo" className="auth-logo" />
+        <img src="/luniva-text.png" alt="Luniva" className="auth-luniva" />
       </div>
 
-      {/* Auth Box */}
       <div className="auth-box">
         <h2>{isLogin ? "Login" : "Register"}</h2>
+        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <input
@@ -79,15 +76,14 @@ export default function AuthPage({ onAuth }) {
             {isLogin ? "Login" : "Register"}
           </button>
         </form>
-
-        <div
+        <p
           className="toggle-text"
           onClick={() => setIsLogin(!isLogin)}
         >
           {isLogin
-            ? "Don't have an account? Register"
-            : "Already have an account? Login"}
-        </div>
+            ? "Don't have an account? Register here"
+            : "Already have an account? Login here"}
+        </p>
       </div>
     </div>
   );
