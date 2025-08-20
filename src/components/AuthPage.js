@@ -4,6 +4,8 @@ import "./AuthPage.css";
 import logo from "../assets/logo.png";
 import lunivaLogo from "../assets/luniva.png";
 
+const API_URL = process.env.REACT_APP_API_URL || "https://luniva-backend.onrender.com";
+
 export default function AuthPage({ onAuth }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("testuser@gmail.com"); // default
@@ -14,14 +16,11 @@ export default function AuthPage({ onAuth }) {
   useEffect(() => {
     const registerDefaultUser = async () => {
       try {
-        await axios.post(
-          "https://luniva-backend.onrender.com/api/auth/register",
-          {
-            fullName: "Test User",
-            email: "testuser@gmail.com",
-            password: "password",
-          }
-        );
+        await axios.post(`${API_URL}/api/auth/register`, {
+          fullName: "Test User",
+          email: "testuser@gmail.com",
+          password: "password",
+        });
         console.log("✅ Default user ensured in database");
       } catch (err) {
         if (err.response?.status === 400) {
@@ -38,8 +37,8 @@ export default function AuthPage({ onAuth }) {
     e.preventDefault();
     try {
       const url = isLogin
-        ? "https://luniva-backend.onrender.com/api/auth/login"
-        : "https://luniva-backend.onrender.com/api/auth/register";
+        ? `${API_URL}/api/auth/login`
+        : `${API_URL}/api/auth/register`;
 
       const payload = isLogin
         ? { email, password }
