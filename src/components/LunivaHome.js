@@ -5,6 +5,7 @@ import Messages from './Messages';
 import CreatePost from './Createpost';
 import Dashboard from './Dashboard';
 import Notifications from './Notifications';
+import Profile from './Profile';
 
 export default function LunivaHome({ user, onLogout }) {
   const [posts, setPosts] = useState([
