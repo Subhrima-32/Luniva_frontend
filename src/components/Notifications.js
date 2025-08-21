@@ -12,13 +12,13 @@ export default function Notifications() {
   const getIcon = (type) => {
     switch (type) {
       case "like":
-        return <Heart className="bg-text-red-400" size={20} />;
+        return <Heart className="text-red-500" size={20} />;
       case "follow":
         return <UserPlus className="text-blue-500" size={20} />;
       case "comment":
         return <MessageCircle className="text-green-500" size={20} />;
       case "post":
-        return <PlusSquare className="text-purple-500" size={20} />;
+        return <PlusSquare className="text-[#663399]" size={20} />;
       default:
         return null;
     }
@@ -26,7 +26,9 @@ export default function Notifications() {
 
   return (
     <div className="max-w-md mx-auto p-4">
-      <h2 className="text-xl font-bold text-purple-700 mb-4">Recent Activity</h2>
+      <h2 className="text-xl font-bold mb-4" style={{ color: "#663399" }}>
+        Recent Activity
+      </h2>
       <ul className="space-y-3">
         {notifications.map((note) => (
           <li
@@ -34,10 +36,12 @@ export default function Notifications() {
             className="flex items-center justify-between bg-white rounded-2xl shadow-md p-4 hover:bg-purple-50 transition"
           >
             <div className="flex flex-col">
-              <p className="text-purple-700 font-medium">
+              <p className="font-medium" style={{ color: "#c521c2ff" }}>
                 <strong>{note.user}</strong> {note.text}
               </p>
-              <span className="text-xs text-gray-500">{note.time}</span>
+              <span className="text-xs" style={{ color: "#c521c2ff" }}>
+                {note.time}
+              </span>
             </div>
             <div>{getIcon(note.type)}</div>
           </li>
