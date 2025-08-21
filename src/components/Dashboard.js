@@ -2,8 +2,14 @@
 import React, { useState } from "react";
 import "./Dashboard.css";
 
-export default function Dashboard() {
+export default function Dashboard({ onLogout }) {
   const [timeframe, setTimeframe] = useState("7days");
+
+  // ✅ Get user from localStorage
+  const user = JSON.parse(localStorage.getItem("user")) || {
+    fullName: "Guest User",
+    email: "guest@email.com",
+  };
 
   const stats = [
     { title: "Followers", value: 50 },
@@ -30,6 +36,15 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
+      {/* User Info + Logout */}
+      <div className="dashboard-header">
+        <h2>Welcome, {user.fullName} 👋</h2>
+        <p className="user-email">{user.email}</p>
+        <button onClick={onLogout} className="logout-btn">
+          Logout
+        </button>
+      </div>
+
       <h2>Audience & Activity Overview</h2>
 
       {/* Timeframe Filter */}

@@ -1,65 +1,29 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import "./AuthPage.css";
 import logo from "../assets/logo.png";
 import lunivaLogo from "../assets/luniva.png";
 
 export default function AuthPage({ onAuth }) {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("testuser@gmail.com"); // default
-  const [password, setPassword] = useState("password"); // default
-  const [fullName, setFullName] = useState("Test User");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
 
-  // ✅ Use Railway backend by default, but allow override via env
-  const API_BASE =
-    process.env.REACT_APP_BACKEND_URL ||
-    "https://lunivabackend-production.up.railway.app";
-
-  // ✅ Auto-register default user if not exists
-  useEffect(() => {
-    const registerDefaultUser = async () => {
-      try {
-        await axios.post(`${API_BASE}/api/auth/register`, {
-          fullName: "Test User",
-          email: "testuser@gmail.com",
-          password: "password",
-        });
-        console.log("✅ Default user ensured in database");
-      } catch (err) {
-        if (err.response?.status === 400) {
-          console.log("ℹ️ Default user already exists");
-        } else {
-          console.error("Error ensuring default user:", err.message);
-        }
-      }
-    };
-    registerDefaultUser();
-  }, [API_BASE]);
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const url = isLogin
-        ? `${API_BASE}/api/auth/login`
-        : `${API_BASE}/api/auth/register`;
 
-      const payload = isLogin
-        ? { email, password }
-        : { fullName, email, password };
+    // ✅ Skip backend, just accept any credentials
+    const user = {
+      fullName: fullName || "Demo User",
+      email: email || "demo@email.com",
+    };
 
-      const res = await axios.post(url, payload, {
-        headers: { "Content-Type": "application/json" },
-      });
+    // Save to localStorage
+    localStorage.setItem("token", "mock-demo-token");
+    localStorage.setItem("user", JSON.stringify(user));
 
-      // ✅ If backend doesn’t send token, create a mock one
-      const token = res.data?.token || "mock-demo-token";
-
-      localStorage.setItem("token", token);
-      onAuth(res.data.user || { fullName, email });
-    } catch (err) {
-      console.error("Auth error:", err);
-      alert("❌ " + (err.response?.data?.message || "Something went wrong"));
-    }
+    // Trigger parent App state change
+    onAuth(user);
   };
 
   return (

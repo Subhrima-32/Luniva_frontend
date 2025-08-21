@@ -38,6 +38,12 @@ export default function App() {
     }
   };
 
+  const handleAuth = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", "mock-demo-token");
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
@@ -54,13 +60,21 @@ export default function App() {
         <Route
           path="/"
           element={
-            !user ? <AuthPage setUser={setUser} /> : <Navigate to="/home" replace />
+            !user ? (
+              <AuthPage onAuth={handleAuth} />
+            ) : (
+              <Navigate to="/home" replace />
+            )
           }
         />
         <Route
           path="/home"
           element={
-            user ? <LunivaHome user={user} onLogout={handleLogout} /> : <Navigate to="/" replace />
+            user ? (
+              <LunivaHome user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" replace />
+            )
           }
         />
         <Route
