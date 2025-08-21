@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Search from './Search';
 import Messages from './Messages';
+import Profile from './Profile';
 import CreatePost from './Createpost';
 import Dashboard from './Dashboard';
 import Notifications from './Notifications';
-import Profile from './Profile';
 
 export default function LunivaHome({ user, onLogout }) {
   const [posts, setPosts] = useState([
@@ -60,8 +60,7 @@ export default function LunivaHome({ user, onLogout }) {
   ]);
 
   const [currentPage, setCurrentPage] = useState('home');
-  const [selectedProfile, setSelectedProfile] = useState(null);
-  const [chatTarget, setChatTarget] = useState(null); // 👈 who we are messaging
+  const [followersCount, setFollowersCount] = useState(5);
 
   const handleAddPost = (post) => {
     setPosts([post, ...posts]);
@@ -84,6 +83,12 @@ export default function LunivaHome({ user, onLogout }) {
       }
       return post;
     }));
+
+    setFollowersCount(prev =>
+      posts.some(post => post.author === username && !post.isFollowing)
+        ? prev + 1
+        : prev - 1
+    );
   };
 
   // Add comment to a post
@@ -95,35 +100,6 @@ export default function LunivaHome({ user, onLogout }) {
         ? { ...post, comments: [...post.comments, commentText] }
         : post
     ));
-  };
-
-  // Open Profile Page
-  const openProfile = (username) => {
-    setSelectedProfile(username);
-    setCurrentPage('profile');
-  };
-
-  // Collect profile stats
-  const getProfileData = (username) => {
-    const userPosts = posts.filter(p => p.author === username);
-    const totalLikes = userPosts.reduce((sum, p) => sum + p.likes, 0);
-    const followers = userPosts.length > 0 ? userPosts[0].followers : 0;
-    const isFollowing = userPosts.length > 0 ? userPosts[0].isFollowing : false;
-
-    return {
-      username,
-      posts: userPosts.length,
-      likes: totalLikes,
-      followers,
-      isFollowing,
-      postsList: userPosts
-    };
-  };
-
-  // Open chat with user
-  const handleMessageUser = (username) => {
-    setChatTarget(username);
-    setCurrentPage('messages');
   };
 
   return (
@@ -145,8 +121,11 @@ export default function LunivaHome({ user, onLogout }) {
             {posts.map(post => (
               <article key={post.id} style={{ border: '1px solid #ddd', borderRadius: 8, marginBottom: 20, padding: 10 }}>
                 <header 
-                  style={{ fontWeight: 'bold', marginBottom: 5, color: 'purple', cursor: 'pointer' }}
-                  onClick={() => openProfile(post.author)}  // 👈 CLICK TO OPEN PROFILE
+                  style={{ 
+                    fontWeight: 'bold', 
+                    marginBottom: 5,
+                    color: 'purple'   // 👈 AUTHOR NAME PURPLE
+                  }}
                 >
                   {post.author}
                 </header>
@@ -241,6 +220,7 @@ export default function LunivaHome({ user, onLogout }) {
                       </div>
                     </div>
                   )}
+
                 </footer>
               </article>
             ))}
@@ -248,69 +228,16 @@ export default function LunivaHome({ user, onLogout }) {
         )}
 
         {currentPage === 'search' && <Search />}
-        {currentPage === 'messages' && <Messages chatTarget={chatTarget} />} {/* pass chat target */}
+        {currentPage === 'messages' && <Messages />}
         {currentPage === 'create' && <CreatePost onAddPost={handleAddPost} />}
         {currentPage === 'dashboard' && <Dashboard />}
         {currentPage === 'notifications' && <Notifications />}
         
-        {currentPage === 'profile' && selectedProfile && (
-          <div style={{ padding: 20, border: '1px solid #ddd', borderRadius: 8 }}>
-            {(() => {
-              const profile = getProfileData(selectedProfile);
-              return (
-                <>
-                  <h2 style={{ color: '#c13584' }}>@{profile.username}</h2>
-                  <p><b>Posts:</b> {profile.posts}</p>
-                  <p><b>Total Likes:</b> {profile.likes}</p>
-                  <p><b>Followers:</b> {profile.followers}</p>
-                  
-                  <button
-                    onClick={() => toggleFollow(profile.username)}
-                    style={{
-                      backgroundColor: profile.isFollowing ? '#ddd' : '#c13584',
-                      color: profile.isFollowing ? '#000' : '#fff',
-                      border: 'none',
-                      padding: '5px 10px',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      marginRight: 10
-                    }}
-                  >
-                    {profile.isFollowing ? 'Unfollow' : 'Follow'}
-                  </button>
-
-                  {/* 👇 NEW MESSAGE BUTTON */}
-                  <button
-                    onClick={() => handleMessageUser(profile.username)}
-                    style={{
-                      backgroundColor: '#0084ff',
-                      color: '#fff',
-                      border: 'none',
-                      padding: '5px 10px',
-                      borderRadius: '5px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Message
-                  </button>
-
-                  {/* Show all posts of this user */}
-                  <div style={{ marginTop: 20 }}>
-                    <h3>{profile.username}'s Posts</h3>
-                    {profile.postsList.map(p => (
-                      <div key={p.id} style={{ border: '1px solid #ccc', padding: 10, marginTop: 10, borderRadius: 6 }}>
-                        <p>{p.content}</p>
-                        <small>{p.likes} likes</small>
-                      </div>
-                    ))}
-                  </div>
-
-                  <br />
-                  <button onClick={() => setCurrentPage('home')} style={{ cursor: 'pointer' }}>⬅ Back to Home</button>
-                </>
-              );
-            })()}
-          </div>
+        {currentPage === 'profile' && (
+          <Profile 
+            followersCount={followersCount}
+            toggleFollow={toggleFollow}
+          />
         )}
       </main>
     </div>

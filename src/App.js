@@ -1,9 +1,12 @@
+// App.js
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AuthPage from "./components/AuthPage";
 import LunivaHome from "./components/LunivaHome";
 import Dashboard from "./components/Dashboard";
 import Header from "./components/Header";
+import Profile from "./components/Profile"; // ✅ Corrected path
+import Message from "./components/Messages"; // ✅ Added Message.js route
 import "./App.css";
 
 export default function App() {
@@ -80,6 +83,16 @@ export default function App() {
         <Route
           path="/dashboard"
           element={user ? <Dashboard /> : <Navigate to="/" replace />}
+        />
+        {/* ✅ New route for Profile */}
+        <Route
+          path="/profile/:id"
+          element={user ? <Profile /> : <Navigate to="/" replace />}
+        />
+        {/* ✅ New route for Message */}
+        <Route
+          path="/messages/:id"
+          element={user ? <Message /> : <Navigate to="/" replace />}
         />
       </Routes>
     </div>
